@@ -8,7 +8,7 @@
 |------|--------|-----|-----------|-----------|
 | 회원가입 | POST | `/api/users/signup` | `{ "username": "john", "email": "john@email.com", "password": "1234" }` | `201 Created` |
 | 로그인 | POST | `/api/users/login` | `{ "email": "john@email.com", "password": "1234" }` | `200 OK` (Set-Cookie) |
-| 유저 조회 | GET | `/api/users/{userId}` | - | `{ "id": 1, "username": "john", "email": "john@email.com" }` |
+| 유저 조회 | GET | `/api/users/{userId}` | - | `{ "id": 1, "username": "john", "email": "john@email.com" }` ,  `200 OK`  ,   `404 NOT_FOUND`  |
 | 유저 목록 | GET | `/api/users` | - | `[ { "id": 1, "username": "john", "email": "john@email.com" } ]` |
 | 유저 수정 | PUT | `/api/users/{userId}` | `{ "username": "johnny" }` | `200 OK` |
 | 유저 삭제 | DELETE | `/api/users/{userId}` | - | `200 OK` |
