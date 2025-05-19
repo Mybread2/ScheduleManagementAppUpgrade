@@ -31,3 +31,6 @@
 | 댓글 목록 | GET | `/api/schedules/{scheduleId}/comments` | - | `[ { "id": 1, "content": "좋아요!", "userId": 1 } ]` |
 | 댓글 수정 | PUT | `/api/comments/{commentId}` | `{ "content": "수정된 댓글" }` | `200 OK` |
 | 댓글 삭제 | DELETE | `/api/comments/{commentId}` | - | `200 OK` |
+
+# ERD
+![ERD](./ERD2.png)
