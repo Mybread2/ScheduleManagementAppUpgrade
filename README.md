@@ -18,8 +18,8 @@
 | 기능 | 메서드 | URL | 요청 예시 | 응답 예시 |
 |------|--------|-----|-----------|-----------|
 | 일정 등록 | POST | `/api/schedules` | `{ "title": "공부하기", "content": "스프링 복습", "userId": 1 }` | `201 Created` |
-| 일정 조회 | GET | `/api/schedules/{scheduleId}` | - | `{ "id": 1, "title": "공부하기", "content": "스프링 복습", "userId": 1 }`, `200 OK`, `404 NOT_FOUND` |
-| 일정 목록 조회 | GET | `/api/schedules?page=0&size=10` | - | `[ ... ]` , `200 OK`, '404 NOT_FOUND'|
+| 일정 조회 | GET | `/api/schedules/{scheduleId}` | - | `{ "id": 1, "title": "공부하기", "content": "스프링 복습", "userId": 1 }`,   `200 OK`  ,   `404 NOT_FOUND` |
+| 일정 목록 조회 | GET | `/api/schedules?page=0&size=10` | - | `[ ... ]` , `200 OK`, `404 NOT_FOUND`|
 | 일정 수정 | PUT | `/api/schedules/{scheduleId}` | `{ "title": "운동하기", "content": "헬스장 가기" }` | `200 OK` |
 | 일정 삭제 | DELETE | `/api/schedules/{scheduleId}` | - | `200 OK` |
 
@@ -28,7 +28,7 @@
 | 기능 | 메서드 | URL | 요청 예시 | 응답 예시 |
 |------|--------|-----|-----------|-----------|
 | 댓글 등록 | POST | `/api/schedules/{scheduleId}/comments` | `{ "content": "좋아요!", "userId": 1 }` | `201 Created` |
-| 댓글 목록 | GET | `/api/schedules/{scheduleId}/comments` | - | `[ { "id": 1, "content": "좋아요!", "userId": 1 } ]` , `200 OK`, `404 NOT_FOUND` |
+| 댓글 목록 | GET | `/api/schedules/{scheduleId}/comments` | - | `[ { "id": 1, "content": "좋아요!", "userId": 1 } ]` ,   `200 OK`  ,   `404 NOT_FOUND` |
 | 댓글 수정 | PUT | `/api/comments/{commentId}` | `{ "content": "수정된 댓글" }` | `200 OK` |
 | 댓글 삭제 | DELETE | `/api/comments/{commentId}` | - | `200 OK` |
 
