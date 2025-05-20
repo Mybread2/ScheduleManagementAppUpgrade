@@ -16,9 +16,11 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private String userName;
 
+    @Setter
     @Column(nullable = false)
     private String title;
 
+    @Setter
     @Column(nullable = false)
     private String contents;
 

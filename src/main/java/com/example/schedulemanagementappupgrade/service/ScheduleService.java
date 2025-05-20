@@ -50,4 +50,27 @@ public class ScheduleService {
         return new FindScheduleWithScheduleIdResponseDto(findSchedule.getId(), findSchedule.getTitle(), findSchedule.getContents());
     }
 
+    @Transactional
+    public void updateSchedule(Long id, String title, String contents, String password) {
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+
+        User user = schedule.getUser();
+        if(user == null) throw new UserNotFoundException("User Not Found");
+        if(!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
+
+        schedule.setTitle(title);
+        schedule.setContents(contents);
+    }
+
+    @Transactional
+    public void deleteSchedule(Long id, String password) {
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+
+        User user = schedule.getUser();
+        if(!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
+
+        scheduleRepository.deleteById(id);
+    }
 }
