@@ -1,6 +1,6 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.dto.*;
+import com.example.schedulemanagementappupgrade.dto.user.*;
 import com.example.schedulemanagementappupgrade.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

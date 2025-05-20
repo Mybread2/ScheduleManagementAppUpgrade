@@ -1,7 +1,7 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.dto.FindUserResponseDto;
-import com.example.schedulemanagementappupgrade.dto.CreateUserResponseDto;
+import com.example.schedulemanagementappupgrade.dto.user.FindUserResponseDto;
+import com.example.schedulemanagementappupgrade.dto.user.CreateUserResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;

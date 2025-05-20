@@ -1,9 +1,9 @@
-package com.example.schedulemanagementappupgrade.dto;
+package com.example.schedulemanagementappupgrade.dto.schedule;
 
 import lombok.Getter;
 
 @Getter
-public class CreateScheduleResponseDto {
+public class FindAllSchedulesWithUserIdResponseDto {
 
     private final Long id;
 
@@ -11,7 +11,7 @@ public class CreateScheduleResponseDto {
 
     private final String contents;
 
-    public CreateScheduleResponseDto(Long id, String title, String contents) {
+    public FindAllSchedulesWithUserIdResponseDto(Long id, String title, String contents) {
         this.id = id;
         this.title = title;
         this.contents = contents;

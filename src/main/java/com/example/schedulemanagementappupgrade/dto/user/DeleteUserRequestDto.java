@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.dto;
+package com.example.schedulemanagementappupgrade.dto.user;
 
 import lombok.Getter;
 

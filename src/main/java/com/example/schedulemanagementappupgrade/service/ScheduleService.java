@@ -1,15 +1,19 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.dto.CreateScheduleResponseDto;
+import com.example.schedulemanagementappupgrade.dto.schedule.CreateScheduleResponseDto;
+import com.example.schedulemanagementappupgrade.dto.schedule.FindAllSchedulesWithUserIdResponseDto;
+import com.example.schedulemanagementappupgrade.dto.schedule.FindScheduleWithScheduleIdResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Schedule;
 import com.example.schedulemanagementappupgrade.entity.User;
-import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
+import com.example.schedulemanagementappupgrade.exception.ScheduleNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
 import com.example.schedulemanagementappupgrade.repository.ScheduleRepository;
 import com.example.schedulemanagementappupgrade.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,20 +22,32 @@ public class ScheduleService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreateScheduleResponseDto createSchedule(String userName, String password,String title, String contents) {
-        
-        User user = userRepository.findByUserName(userName)
+    public CreateScheduleResponseDto createSchedule(Long userId,String title, String contents) {
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
-        
-       if (!user.getPassword().equals(password)) {
-           throw new PasswordNotFoundException("Password is not correct");
-       }
-           
+
            Schedule schedule = new Schedule(user.getUserName(), title, contents);
            schedule.setUser(user);
-           
+
            Schedule savedSchedule = scheduleRepository.save(schedule);
-           
+
            return new CreateScheduleResponseDto(savedSchedule.getId(), savedSchedule.getTitle(), savedSchedule.getContents());
        }
+
+    public List<FindAllSchedulesWithUserIdResponseDto> findSchedulesByUserId(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findByUserId(userId);
+
+        return schedules.stream()
+                .map(s -> new FindAllSchedulesWithUserIdResponseDto(s.getId(), s.getTitle(), s.getContents()))
+                .toList();
+    }
+
+    public FindScheduleWithScheduleIdResponseDto findById(Long id) {
+        Schedule findSchedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+
+        return new FindScheduleWithScheduleIdResponseDto(findSchedule.getId(), findSchedule.getTitle(), findSchedule.getContents());
+    }
+
 }
