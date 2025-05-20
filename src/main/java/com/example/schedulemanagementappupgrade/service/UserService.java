@@ -3,13 +3,12 @@ package com.example.schedulemanagementappupgrade.service;
 import com.example.schedulemanagementappupgrade.dto.FindUserResponseDto;
 import com.example.schedulemanagementappupgrade.dto.UserResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
+import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
+import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
 import com.example.schedulemanagementappupgrade.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +27,32 @@ public class UserService {
 
     public FindUserResponseDto findById(Long id) {
 
-        Optional<User> optionalUser = userRepository.findById(id);
-
-        // NPE 방지
-        if (optionalUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not Found");
-        }
-
-        User findUser = optionalUser.get();
+        User findUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
         return new FindUserResponseDto(findUser.getUserName(), findUser.getEmailAddress(), findUser.getPassword());
+    }
+
+    @Transactional
+    public void updatePassword(Long id, String previousPassword, String newPassword) {
+
+        User findUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+        if (!findUser.getPassword().equals(previousPassword)) {
+            throw new PasswordNotFoundException("Password is not correct");
+        }
+
+        findUser.updatePassword(newPassword);
+    }
+
+    public void delete(Long id, String password) {
+
+        User findUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+        if (!findUser.getPassword().equals(password)) {
+            throw new UserNotFoundException("Password is not correct");
+        }
+
+        userRepository.deleteById(id);
     }
 }

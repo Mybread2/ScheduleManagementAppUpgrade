@@ -1,8 +1,6 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.dto.FindUserResponseDto;
-import com.example.schedulemanagementappupgrade.dto.UserRequestDto;
-import com.example.schedulemanagementappupgrade.dto.UserResponseDto;
+import com.example.schedulemanagementappupgrade.dto.*;
 import com.example.schedulemanagementappupgrade.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,4 +33,25 @@ public class UserController {
 
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable Long id,
+            @RequestBody UpdatePasswordRequestDto requestDto)
+    {
+        userService.updatePassword(id, requestDto.getPreviousPassword(), requestDto.getNewPassword());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @RequestBody DeleteUserRequestDto requestDto)
+    {
+        userService.delete(id, requestDto.getPassword());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
