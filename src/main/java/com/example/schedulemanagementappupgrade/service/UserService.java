@@ -1,7 +1,7 @@
 package com.example.schedulemanagementappupgrade.service;
 
 import com.example.schedulemanagementappupgrade.dto.FindUserResponseDto;
-import com.example.schedulemanagementappupgrade.dto.UserResponseDto;
+import com.example.schedulemanagementappupgrade.dto.CreateUserResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
@@ -16,13 +16,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserResponseDto createUser(String userName, String emailAddress, String password) {
+    public CreateUserResponseDto createUser(String userName, String emailAddress, String password) {
 
         User user = new User(userName, emailAddress, password);
 
         User savedUser = userRepository.save(user);
 
-        return new UserResponseDto(savedUser.getId(), savedUser.getUserName(), savedUser.getEmailAddress());
+        return new CreateUserResponseDto(savedUser.getId(), savedUser.getUserName(), savedUser.getEmailAddress());
     }
 
     public FindUserResponseDto findById(Long id) {
@@ -36,7 +36,8 @@ public class UserService {
     @Transactional
     public void updatePassword(Long id, String previousPassword, String newPassword) {
 
-        User findUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        User findUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
         if (!findUser.getPassword().equals(previousPassword)) {
             throw new PasswordNotFoundException("Password is not correct");

@@ -15,15 +15,15 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto requestDto) {
+    public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
 
-        UserResponseDto userResponseDto = userService.createUser(
+        CreateUserResponseDto createUserResponseDto = userService.createUser(
                 requestDto.getUserName(),
                 requestDto.getEmailAddress(),
                 requestDto.getPassword()
         );
 
-        return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(createUserResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
