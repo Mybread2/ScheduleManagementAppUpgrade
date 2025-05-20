@@ -37,7 +37,7 @@ public class LoginCheckFilter implements Filter {
             if (session == null || session.getAttribute("userId") == null) {
                 HttpServletResponse httpResponse = (HttpServletResponse) response;
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.getWriter().write(" Login required. please login first. ");
+                httpResponse.getWriter().write(" Login required. please login first.");
                 return;
             }
         }
