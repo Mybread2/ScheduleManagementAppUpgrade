@@ -2,6 +2,7 @@ package com.example.schedulemanagementappupgrade.controller;
 
 import com.example.schedulemanagementappupgrade.dto.user.*;
 import com.example.schedulemanagementappupgrade.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    private Long getLoginUserId(HttpServletRequest request) {
+        return (Long) request.getSession(false).getAttribute("userId");
+    }
 
     // 회원가입
     @PostMapping
@@ -28,32 +33,38 @@ public class UserController {
     }
 
     // 내 정보 조회
-    @GetMapping("/{id}")
-    public ResponseEntity<FindUserResponseDto> findUserById(@PathVariable Long id) {
+    @GetMapping("/me")
+    public ResponseEntity<FindUserResponseDto> getMyInfo(HttpServletRequest request) {
 
-        FindUserResponseDto findUserResponseDto = userService.findById(id);
+        Long userId = getLoginUserId(request);
 
-        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+        FindUserResponseDto responseDto = userService.findById(userId);
+
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping("/{id}")
+    // 내 비밀번호 변경
+    @PatchMapping("/me/password")
     public ResponseEntity<Void> updatePassword(
-            @PathVariable Long id,
-            @RequestBody UpdatePasswordRequestDto requestDto)
+            @RequestBody UpdatePasswordRequestDto requestDto,
+            HttpServletRequest request)
     {
-        userService.updatePassword(id, requestDto.getPreviousPassword(), requestDto.getNewPassword());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        Long userId = getLoginUserId(request);
+        userService.updatePassword(userId, requestDto.getPreviousPassword(), requestDto.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id,
-            @RequestBody DeleteUserRequestDto requestDto)
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMyAccount(
+            @RequestBody DeleteUserRequestDto requestDto,
+            HttpServletRequest request)
     {
-        userService.delete(id, requestDto.getPassword());
+        Long userId = getLoginUserId(request);
+        userService.delete(userId, requestDto.getPassword());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        // 세션 무효화
+        request.getSession(false).invalidate();
+        return ResponseEntity.ok().build();
     }
 
 }

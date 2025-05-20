@@ -11,9 +11,8 @@ import java.io.IOException;
 public class LoginCheckFilter implements Filter {
 
     private static final String[] WHITE_LIST = {
-            "/auth/login",
-            "/auth/logout",
-            "/"
+        "/auth/login",
+        "/auth/logout"
     };
 
     @Override
@@ -24,28 +23,24 @@ public class LoginCheckFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String requestURI = httpRequest.getRequestURI();
-        String method = httpRequest.getMethod();
 
-        // 회원가입(Post /users)은 인증 없이 허용
-        if (requestURI.equals("/users") && method.equals("POST")) {
+        // 회원가입만 POST일 때 허용
+        if (requestURI.equals("/users/login") || (requestURI.equals("/users") && ((HttpServletRequest) request).getMethod().equals("POST"))) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 로그인을 체크해야하는 URL 인지 검사
-        // whiteListURL에 포함된 경우 true 반환
+        // 화이트리스트 URL이 아니면 인증체크
         if (!isWhiteList(requestURI)) {
             HttpSession session = httpRequest.getSession(false);
 
             if (session == null || session.getAttribute("userId") == null) {
                 HttpServletResponse httpResponse = (HttpServletResponse) response;
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.getWriter().write("{\"message\": \"Login required\"}");
+                httpResponse.getWriter().write(" Login required. please login first. ");
                 return;
             }
-
         }
-        // 로그인 성공 로직
 
         chain.doFilter(request, response);
     }

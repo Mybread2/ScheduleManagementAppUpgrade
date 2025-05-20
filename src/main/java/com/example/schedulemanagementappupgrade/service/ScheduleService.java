@@ -22,20 +22,19 @@ public class ScheduleService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreateScheduleResponseDto createSchedule(Long userId,String title, String contents) {
-
+    public CreateScheduleResponseDto createSchedule(Long userId, String title, String contents) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-           Schedule schedule = new Schedule(user.getUserName(), title, contents);
-           schedule.setUser(user);
+        Schedule schedule = new Schedule(user.getUserName(), title, contents);
+        schedule.setUser(user);
 
-           Schedule savedSchedule = scheduleRepository.save(schedule);
+        Schedule savedSchedule = scheduleRepository.save(schedule);
 
-           return new CreateScheduleResponseDto(savedSchedule.getId(), savedSchedule.getTitle(), savedSchedule.getContents());
-       }
+        return new CreateScheduleResponseDto(savedSchedule.getId(), savedSchedule.getTitle(), savedSchedule.getContents());
+    }
 
-    public List<FindAllSchedulesWithUserIdResponseDto> findSchedulesByUserId(Long userId) {
+    public List<FindAllSchedulesWithUserIdResponseDto> findSchedules(Long userId) {
         List<Schedule> schedules = scheduleRepository.findByUserId(userId);
 
         return schedules.stream()
@@ -43,34 +42,40 @@ public class ScheduleService {
                 .toList();
     }
 
-    public FindScheduleWithScheduleIdResponseDto findById(Long id) {
-        Schedule findSchedule = scheduleRepository.findById(id)
+    public FindScheduleWithScheduleIdResponseDto findById(Long userId, Long scheduleId) {
+        Schedule findSchedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
+        if (!findSchedule.getUser().getId().equals(userId)) {
+            throw new ScheduleNotFoundException("No permission for this Schedule");
+        }
         return new FindScheduleWithScheduleIdResponseDto(findSchedule.getId(), findSchedule.getTitle(), findSchedule.getContents());
     }
 
     @Transactional
-    public void updateSchedule(Long id, String title, String contents, String password) {
-        Schedule schedule = scheduleRepository.findById(id)
+    public void updateSchedule(Long userId, Long scheduleId, String title, String contents, String password) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
         User user = schedule.getUser();
-        if(user == null) throw new UserNotFoundException("User Not Found");
-        if(!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
+        if (user == null) throw new UserNotFoundException("User Not Found");
+        if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
+        if (!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
 
         schedule.setTitle(title);
         schedule.setContents(contents);
     }
 
     @Transactional
-    public void deleteSchedule(Long id, String password) {
-        Schedule schedule = scheduleRepository.findById(id)
+    public void deleteSchedule(Long userId, Long scheduleId, String password) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
         User user = schedule.getUser();
-        if(!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
+        if (user == null) throw new UserNotFoundException("User Not Found");
+        if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
+        if (!user.getPassword().equals(password)) throw new UserNotFoundException("Password is not correct");
 
-        scheduleRepository.deleteById(id);
+        scheduleRepository.deleteById(scheduleId);
     }
 }

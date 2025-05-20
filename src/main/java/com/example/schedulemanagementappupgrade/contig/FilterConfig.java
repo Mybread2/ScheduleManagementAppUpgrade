@@ -12,8 +12,8 @@ public class FilterConfig {
     public FilterRegistrationBean<LoginCheckFilter> filterRegistrationBean() {
         FilterRegistrationBean<LoginCheckFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new LoginCheckFilter());
-        registrationBean.setOrder(1);
         registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(1);
         return registrationBean;
     }
 }

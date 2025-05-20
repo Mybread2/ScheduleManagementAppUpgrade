@@ -2,62 +2,88 @@ package com.example.schedulemanagementappupgrade.controller;
 
 import com.example.schedulemanagementappupgrade.dto.schedule.*;
 import com.example.schedulemanagementappupgrade.service.ScheduleService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/{userId}/schedules")
+@RequestMapping("/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
+    private Long getLoginUserId(HttpServletRequest request) {
+       return (Long) request.getSession(false).getAttribute("userId");
+    }
+
+    // 내 일정 등록
     @PostMapping
-    public ResponseEntity<CreateScheduleResponseDto> createSchedule(@RequestBody CreateScheduleRequestDto requestDto) {
+    public ResponseEntity<CreateScheduleResponseDto> createSchedule(
+            @RequestBody CreateScheduleRequestDto requestDto,
+            HttpServletRequest request) {
+
+        Long userId = getLoginUserId(request);
 
         CreateScheduleResponseDto createScheduleResponseDto = scheduleService.createSchedule(
-                requestDto.getUserId(),
+                userId,
                 requestDto.getTitle(),
                 requestDto.getContents()
         );
         return ResponseEntity.ok(createScheduleResponseDto);
     }
 
+    // 내 일정 전체 조회
     @GetMapping
-    public ResponseEntity<List<FindAllSchedulesWithUserIdResponseDto>> findAllSchedulesWithUserId(@PathVariable Long userId){
-        List<FindAllSchedulesWithUserIdResponseDto> foundSchedules = scheduleService.findSchedulesByUserId(userId);
+    public ResponseEntity<List<FindAllSchedulesWithUserIdResponseDto>> getMySchedules(
+            HttpServletRequest request){
 
-        return new ResponseEntity<>(foundSchedules, HttpStatus.OK);
+        Long userId = getLoginUserId(request);
+        List<FindAllSchedulesWithUserIdResponseDto> foundSchedules = scheduleService.findSchedules(userId);
+
+        return ResponseEntity.ok(foundSchedules);
+
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FindScheduleWithScheduleIdResponseDto> findScheduleById(@PathVariable Long id) {
+    // 내 일정 단건 조회
+    @GetMapping("//{scheduleId}")
+    public ResponseEntity<FindScheduleWithScheduleIdResponseDto> findScheduleById(
+            @PathVariable Long scheduleId,
+            HttpServletRequest request) {
 
-        FindScheduleWithScheduleIdResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(id);
+        Long userId = getLoginUserId(request);
+        FindScheduleWithScheduleIdResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
 
-        return new ResponseEntity<>(findScheduleWithUserNameResponseDto, HttpStatus.OK);
+        return ResponseEntity.ok(findScheduleWithUserNameResponseDto);
     }
 
-    @PatchMapping("{id}")
+    // 내 일정 수정
+    @PatchMapping("/{scheduleId}")
     public ResponseEntity<Void> updateSchedule(
-            @PathVariable Long id,
-            @RequestBody UpdateScheduleRequestDto requestDto)
+            @PathVariable Long scheduleId,
+            @RequestBody UpdateScheduleRequestDto requestDto,
+            HttpServletRequest request)
     {
-        scheduleService.updateSchedule(id, requestDto.getTitle(), requestDto.getContents(), requestDto.getPassword());
-        return new ResponseEntity<>(HttpStatus.OK);
+        Long userId = getLoginUserId(request);
+        scheduleService.updateSchedule(userId, scheduleId ,requestDto.getTitle(), requestDto.getContents(), requestDto.getPassword());
+        return ResponseEntity.ok().build();
+
     }
 
-    @DeleteMapping("{id}")
+    // 내 일정 삭제
+    @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
-            @PathVariable Long id,
-            @RequestBody DeleteScheduleRequestDto requestDto)
+            @PathVariable Long scheduleId,
+            @RequestBody DeleteScheduleRequestDto requestDto,
+            HttpServletRequest request)
     {
-        scheduleService.deleteSchedule(id, requestDto.getPassword());
-        return new ResponseEntity<>(HttpStatus.OK);
+        Long userId = getLoginUserId(request);
+        scheduleService.deleteSchedule(userId, scheduleId, requestDto.getPassword());
+        return ResponseEntity.ok().build();
+
     }
 
 }
