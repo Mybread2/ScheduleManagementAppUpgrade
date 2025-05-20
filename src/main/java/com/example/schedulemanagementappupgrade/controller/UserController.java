@@ -14,6 +14,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping
     public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
 
@@ -26,6 +27,7 @@ public class UserController {
         return new ResponseEntity<>(createUserResponseDto, HttpStatus.CREATED);
     }
 
+    // 내 정보 조회
     @GetMapping("/{id}")
     public ResponseEntity<FindUserResponseDto> findUserById(@PathVariable Long id) {
 
