@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.contig;
+package com.example.schedulemanagementappupgrade.config;
 
 import com.example.schedulemanagementappupgrade.filter.LoginCheckFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
