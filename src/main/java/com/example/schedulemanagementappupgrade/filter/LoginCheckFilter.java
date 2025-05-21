@@ -11,8 +11,7 @@ import java.io.IOException;
 public class LoginCheckFilter implements Filter {
 
     private static final String[] WHITE_LIST = {
-        "/auth/login",
-        "/auth/logout"
+        "/auth/login"
     };
 
     @Override
@@ -24,7 +23,7 @@ public class LoginCheckFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String requestURI = httpRequest.getRequestURI();
 
-        // 회원가입만 POST일 때 허용
+        // 회원가입과 로그인 요청시에만 필터 제외
         if (requestURI.equals("/users/login") || (requestURI.equals("/users") && ((HttpServletRequest) request).getMethod().equals("POST"))) {
             chain.doFilter(request, response);
             return;

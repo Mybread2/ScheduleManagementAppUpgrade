@@ -3,6 +3,7 @@ package com.example.schedulemanagementappupgrade.controller;
 import com.example.schedulemanagementappupgrade.dto.user.*;
 import com.example.schedulemanagementappupgrade.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,8 @@ public class UserController {
 
     // 회원가입
     @PostMapping
-    public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
-
+    public ResponseEntity<CreateUserResponseDto> createUser(
+            @Valid @RequestBody CreateUserRequestDto requestDto) {
         CreateUserResponseDto createUserResponseDto = userService.createUser(
                 requestDto.getUserName(),
                 requestDto.getEmailAddress(),
@@ -46,7 +47,7 @@ public class UserController {
     // 내 비밀번호 변경
     @PatchMapping("/me/password")
     public ResponseEntity<Void> updatePassword(
-            @RequestBody UpdatePasswordRequestDto requestDto,
+            @Valid @RequestBody UpdatePasswordRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
@@ -56,7 +57,7 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
-            @RequestBody DeleteUserRequestDto requestDto,
+            @Valid @RequestBody DeleteUserRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);

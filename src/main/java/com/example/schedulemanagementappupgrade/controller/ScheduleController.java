@@ -3,6 +3,7 @@ package com.example.schedulemanagementappupgrade.controller;
 import com.example.schedulemanagementappupgrade.dto.schedule.*;
 import com.example.schedulemanagementappupgrade.service.ScheduleService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class ScheduleController {
     // 내 일정 등록
     @PostMapping
     public ResponseEntity<CreateScheduleResponseDto> createSchedule(
-            @RequestBody CreateScheduleRequestDto requestDto,
+            @Valid @RequestBody CreateScheduleRequestDto requestDto,
             HttpServletRequest request) {
 
         Long userId = getLoginUserId(request);
@@ -64,7 +65,7 @@ public class ScheduleController {
     @PatchMapping("/{scheduleId}")
     public ResponseEntity<Void> updateSchedule(
             @PathVariable Long scheduleId,
-            @RequestBody UpdateScheduleRequestDto requestDto,
+            @Valid @RequestBody UpdateScheduleRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
@@ -77,7 +78,7 @@ public class ScheduleController {
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long scheduleId,
-            @RequestBody DeleteScheduleRequestDto requestDto,
+            @Valid @RequestBody DeleteScheduleRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);

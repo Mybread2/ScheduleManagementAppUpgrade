@@ -3,6 +3,9 @@ package com.example.schedulemanagementappupgrade.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "user")
@@ -20,6 +23,9 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private final List<Schedule> schedules = new ArrayList<>();
 
     public User() {}
 

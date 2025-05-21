@@ -6,6 +6,7 @@ import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
+            @Valid
             @RequestBody LoginRequestDto requestDto,
             HttpServletRequest request
             ) {
