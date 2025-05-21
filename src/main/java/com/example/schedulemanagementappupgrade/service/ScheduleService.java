@@ -1,5 +1,6 @@
 package com.example.schedulemanagementappupgrade.service;
 
+import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.dto.schedule.CreateScheduleResponseDto;
 import com.example.schedulemanagementappupgrade.dto.schedule.FindAllSchedulesWithUserIdResponseDto;
 import com.example.schedulemanagementappupgrade.dto.schedule.FindScheduleWithScheduleIdResponseDto;
@@ -22,6 +23,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CreateScheduleResponseDto createSchedule(Long userId, String title, String contents) {
@@ -54,13 +56,16 @@ public class ScheduleService {
 
     @Transactional
     public void updateSchedule(Long userId, Long scheduleId, String title, String contents, String password) {
+
+        String encodedPassword = passwordEncoder.encode(password);
+
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
         User user = schedule.getUser();
         if (user == null) throw new UserNotFoundException("User Not Found");
         if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
-        if (!user.getPassword().equals(password)) throw new PasswordNotFoundException("Password is not correct");
+        if (!user.getPassword().equals(encodedPassword)) throw new PasswordNotFoundException("Password is not correct");
 
         Schedule updatedSchedule = new Schedule(
                 schedule.getId(),
@@ -75,13 +80,16 @@ public class ScheduleService {
 
     @Transactional
     public void deleteSchedule(Long userId, Long scheduleId, String password) {
+
+        String encodedPassword = passwordEncoder.encode(password);
+
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
         User user = schedule.getUser();
         if (user == null) throw new UserNotFoundException("User Not Found");
         if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
-        if (!user.getPassword().equals(password)) throw new PasswordNotFoundException("Password is not correct");
+        if (!user.getPassword().equals(encodedPassword)) throw new PasswordNotFoundException("Password is not correct");
 
         scheduleRepository.deleteById(scheduleId);
     }

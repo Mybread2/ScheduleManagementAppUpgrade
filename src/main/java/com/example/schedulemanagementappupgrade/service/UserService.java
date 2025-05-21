@@ -61,9 +61,11 @@ public class UserService {
 
     public void delete(Long id, String password) {
 
+        String encodedPassword = passwordEncoder.encode(password);
+
         User findUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        if (!findUser.getPassword().equals(password)) {
+        if (!findUser.getPassword().equals(encodedPassword)) {
             throw new UserNotFoundException("Password is not correct");
         }
 

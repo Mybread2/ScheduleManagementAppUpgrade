@@ -1,5 +1,6 @@
 package com.example.schedulemanagementappupgrade.service;
 
+import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Comment;
@@ -25,6 +26,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CreateCommentResponseDto createComment(Long userId, Long scheduleID, String content) {
@@ -51,6 +53,9 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long userId, Long scheduleId ,Long commentId, String password) {
+
+        String encodedPassword = passwordEncoder.encode(password);
+
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
 
@@ -61,7 +66,7 @@ public class CommentService {
             throw new IllegalArgumentException("This comment does not belong to the schedule.");
         }
 
-        if (!comment.getUser().getPassword().equals(password)) {
+        if (!comment.getUser().getPassword().equals(encodedPassword)) {
             throw new PasswordNotFoundException("Password is not correct");
         }
 
