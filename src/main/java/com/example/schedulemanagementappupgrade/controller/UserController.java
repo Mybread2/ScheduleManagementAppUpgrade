@@ -51,7 +51,11 @@ public class UserController {
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
-        userService.updatePassword(userId, requestDto.getPreviousPassword(), requestDto.getNewPassword());
+
+        userService.updatePassword(
+                userId,
+                requestDto.getPreviousPassword(),
+                requestDto.getNewPassword());
         return ResponseEntity.ok().build();
     }
 
