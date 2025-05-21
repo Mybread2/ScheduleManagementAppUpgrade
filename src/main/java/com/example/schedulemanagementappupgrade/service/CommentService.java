@@ -5,6 +5,8 @@ import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentRespons
 import com.example.schedulemanagementappupgrade.entity.Comment;
 import com.example.schedulemanagementappupgrade.entity.Schedule;
 import com.example.schedulemanagementappupgrade.entity.User;
+import com.example.schedulemanagementappupgrade.exception.CommentNotFoundException;
+import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.ScheduleNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
 import com.example.schedulemanagementappupgrade.repository.CommentRepository;
@@ -45,5 +47,24 @@ public class CommentService {
         return comments.stream()
                 .map(s -> new CommentResponseDto(s.getId(), s.getContent()))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, Long scheduleId ,Long commentId, String password) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("You can only delete comments you have written.");
+        }
+        if (!comment.getSchedule().getId().equals(scheduleId)) {
+            throw new IllegalArgumentException("This comment does not belong to the schedule.");
+        }
+
+        if (!comment.getUser().getPassword().equals(password)) {
+            throw new PasswordNotFoundException("Password is not correct");
+        }
+
+        commentRepository.deleteById(commentId);
     }
 }

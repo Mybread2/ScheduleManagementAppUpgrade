@@ -3,6 +3,7 @@ package com.example.schedulemanagementappupgrade.controller;
 import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentRequestDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentResponseDto;
+import com.example.schedulemanagementappupgrade.dto.comment.DeletionCommentRequestDto;
 import com.example.schedulemanagementappupgrade.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -48,4 +49,15 @@ public class CommentController {
         return ResponseEntity.ok(commentResponseDto);
     }
 
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long scheduleId,
+            @PathVariable Long commentId,
+            @Valid@RequestBody DeletionCommentRequestDto requestDto,
+            HttpServletRequest request
+    ) {
+        Long userId = getLoginUserId(request);
+        commentService.deleteComment(userId, scheduleId,commentId, requestDto.getPassword());
+        return ResponseEntity.ok().build();
+    }
 }

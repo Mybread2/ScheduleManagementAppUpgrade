@@ -4,11 +4,13 @@ import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.dto.user.CreateUserResponseDto;
 import com.example.schedulemanagementappupgrade.dto.user.FindUserResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
+import com.example.schedulemanagementappupgrade.exception.DuplicationEmailException;
 import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
 import com.example.schedulemanagementappupgrade.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,9 +22,19 @@ public class UserService {
 
     public CreateUserResponseDto createUser(String userName, String emailAddress, String password) {
 
+        if (userRepository.existsByEmailAddress(emailAddress)) {
+            throw new DuplicationEmailException("This email already exists.");
+        }
+
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(userName, emailAddress, encodedPassword);
         User savedUser = userRepository.save(user);
+
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicationEmailException("This email already exists.");
+        }
 
         return new CreateUserResponseDto(savedUser.getId(), savedUser.getUserName(), savedUser.getEmailAddress());
     }

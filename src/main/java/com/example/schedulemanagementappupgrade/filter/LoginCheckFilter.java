@@ -12,9 +12,7 @@ public class LoginCheckFilter implements Filter {
 
     private static final String[] WHITE_LIST = {
             "/auth/login",
-            "/users/login",
-            "/users", // 회원가입: POST
-            "/schedules/comments/*" // 댓글 조회(목록/단건 모두 허용)
+            "/users/login"
     };
 
 
@@ -30,10 +28,8 @@ public class LoginCheckFilter implements Filter {
 
         // 회원가입과 로그인 요청시에만 필터 제외
         // 댓글 조회 기능시에도 필터 제외
-        if (
-                (requestURI.equals("/users") && method.equals("POST")) ||
-                        (PatternMatchUtils.simpleMatch("/schedules/comments/*", requestURI) && method.equals("GET")) ||
-                        isWhiteList(requestURI)
+        if ((requestURI.equals("/users") && method.equals("POST"))
+                        || (PatternMatchUtils.simpleMatch("/schedules/comments/*", requestURI) && method.equals("GET"))
         ) {
             chain.doFilter(request, response);
             return;
