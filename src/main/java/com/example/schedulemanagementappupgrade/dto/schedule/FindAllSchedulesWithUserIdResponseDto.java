@@ -1,8 +1,12 @@
 package com.example.schedulemanagementappupgrade.dto.schedule;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class FindAllSchedulesWithUserIdResponseDto {
 
     private final Long id;
@@ -10,10 +14,4 @@ public class FindAllSchedulesWithUserIdResponseDto {
     private final String title;
 
     private final String contents;
-
-    public FindAllSchedulesWithUserIdResponseDto(Long id, String title, String contents) {
-        this.id = id;
-        this.title = title;
-        this.contents = contents;
-    }
 }

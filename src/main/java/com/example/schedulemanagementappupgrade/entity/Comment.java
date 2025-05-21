@@ -17,12 +17,10 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @Setter
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Setter
     @ManyToOne
     @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;

@@ -28,9 +28,7 @@ public class ScheduleService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        Schedule schedule = new Schedule(user.getUserName(), title, contents);
-        schedule.setUser(user);
-
+        Schedule schedule = new Schedule(user, user.getUserName(), title, contents);
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
         return new CreateScheduleResponseDto(savedSchedule.getId(), savedSchedule.getTitle(), savedSchedule.getContents());
@@ -64,8 +62,15 @@ public class ScheduleService {
         if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
         if (!user.getPassword().equals(password)) throw new PasswordNotFoundException("Password is not correct");
 
-        schedule.setTitle(title);
-        schedule.setContents(contents);
+        Schedule updatedSchedule = new Schedule(
+                schedule.getId(),
+                user,
+                user.getUserName(),
+                title,
+                contents
+        );
+
+        scheduleRepository.save(updatedSchedule);
     }
 
     @Transactional

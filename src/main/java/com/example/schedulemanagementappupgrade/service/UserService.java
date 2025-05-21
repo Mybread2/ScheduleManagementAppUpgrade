@@ -38,8 +38,6 @@ public class UserService {
     @Transactional
     public void updatePassword(Long id, String previousPassword, String newPassword) {
 
-
-
         User findUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 

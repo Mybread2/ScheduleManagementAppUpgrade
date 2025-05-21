@@ -17,6 +17,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
+    // 로그인 유무 판단하는 로직 (세션에 로그인한 userId가 있는지 검증)
     private Long getLoginUserId(HttpServletRequest request) {
        return (Long) request.getSession(false).getAttribute("userId");
     }
@@ -46,11 +47,10 @@ public class ScheduleController {
         List<FindAllSchedulesWithUserIdResponseDto> foundSchedules = scheduleService.findSchedules(userId);
 
         return ResponseEntity.ok(foundSchedules);
-
     }
 
     // 내 일정 단건 조회
-    @GetMapping("//{scheduleId}")
+    @GetMapping("/{scheduleId}")
     public ResponseEntity<FindScheduleWithScheduleIdResponseDto> findScheduleById(
             @PathVariable Long scheduleId,
             HttpServletRequest request) {

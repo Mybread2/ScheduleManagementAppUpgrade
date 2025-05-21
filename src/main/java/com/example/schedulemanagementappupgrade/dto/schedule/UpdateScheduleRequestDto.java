@@ -3,9 +3,14 @@ package com.example.schedulemanagementappupgrade.dto.schedule;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class UpdateScheduleRequestDto {
 
     @NotBlank(message = "제목은 필수입니다.")
@@ -19,9 +24,4 @@ public class UpdateScheduleRequestDto {
     @NotNull(message = "비밀번호는 필수입니다.")
     private final String password;
 
-    public UpdateScheduleRequestDto(String title, String contents, String password) {
-        this.title = title;
-        this.contents = contents;
-        this.password = password;
-    }
 }
