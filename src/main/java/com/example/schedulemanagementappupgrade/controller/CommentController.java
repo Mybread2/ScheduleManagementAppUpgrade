@@ -1,5 +1,6 @@
 package com.example.schedulemanagementappupgrade.controller;
 
+import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentRequestDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentResponseDto;
 import com.example.schedulemanagementappupgrade.service.CommentService;
@@ -9,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/schedules/{scheduleId}/comments")
+@RequestMapping("/schedules/comments/{scheduleId}")
 public class CommentController {
 
     private final CommentService commentService;
@@ -35,4 +38,14 @@ public class CommentController {
         );
         return ResponseEntity.ok(createCommentResponseDto);
     }
+
+    @GetMapping
+    public ResponseEntity<List<CommentResponseDto>> GetMyComments(
+            @PathVariable Long scheduleId
+    ) {
+        List<CommentResponseDto> commentResponseDto = commentService.findComment(scheduleId);
+
+        return ResponseEntity.ok(commentResponseDto);
+    }
+
 }

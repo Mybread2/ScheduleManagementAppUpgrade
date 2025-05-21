@@ -1,5 +1,6 @@
 package com.example.schedulemanagementappupgrade.service;
 
+import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Comment;
 import com.example.schedulemanagementappupgrade.entity.Schedule;
@@ -12,6 +13,8 @@ import com.example.schedulemanagementappupgrade.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,5 +37,13 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         return new CreateCommentResponseDto(savedComment.getId(), user.getUserName(), savedComment.getContent());
+    }
+
+    public List<CommentResponseDto> findComment(Long scheduleId) {
+        List<Comment> comments = commentRepository.findByScheduleId(scheduleId);
+
+        return comments.stream()
+                .map(s -> new CommentResponseDto(s.getId(), s.getContent()))
+                .toList();
     }
 }
