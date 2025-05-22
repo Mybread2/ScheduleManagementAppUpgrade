@@ -3,17 +3,17 @@ package com.example.schedulemanagementappupgrade.dto.user;
 import lombok.Getter;
 
 @Getter
-public class CreateUserResponseDto {
-
-    private final Long id;
+public class UserResponseDto {
 
     private final String userName;
 
     private final String emailAddress;
 
-    public CreateUserResponseDto(Long id, String userName, String emailAddress) {
-        this.id = id;
+    private final String password;
+
+    public UserResponseDto(String userName, String emailAddress, String password) {
         this.userName = userName;
         this.emailAddress = emailAddress;
+        this.password = password;
     }
 }

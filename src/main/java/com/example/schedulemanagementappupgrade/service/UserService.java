@@ -1,8 +1,8 @@
 package com.example.schedulemanagementappupgrade.service;
 
 import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
-import com.example.schedulemanagementappupgrade.dto.user.CreateUserResponseDto;
-import com.example.schedulemanagementappupgrade.dto.user.FindUserResponseDto;
+import com.example.schedulemanagementappupgrade.dto.user.UserCreationResponseDto;
+import com.example.schedulemanagementappupgrade.dto.user.UserResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
@@ -19,7 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public CreateUserResponseDto createUser(String userName, String emailAddress, String password) {
+    public UserCreationResponseDto createUser(String userName, String emailAddress, String password) {
 
         if (userRepository.existsByEmailAddress(emailAddress)) {
             throw new DataIntegrityViolationException("This email already exists.");
@@ -29,15 +29,15 @@ public class UserService {
         User user = new User(userName, emailAddress, encodedPassword);
         User savedUser = userRepository.save(user);
 
-        return new CreateUserResponseDto(savedUser.getId(), savedUser.getUserName(), savedUser.getEmailAddress());
+        return new UserCreationResponseDto(savedUser.getId(), savedUser.getUserName(), savedUser.getEmailAddress());
     }
 
-    public FindUserResponseDto findById(Long id) {
+    public UserResponseDto findById(Long id) {
 
         User findUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        return new FindUserResponseDto(findUser.getUserName(), findUser.getEmailAddress(), findUser.getPassword());
+        return new UserResponseDto(findUser.getUserName(), findUser.getEmailAddress(), findUser.getPassword());
     }
 
     @Transactional
@@ -46,20 +46,25 @@ public class UserService {
         User findUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        if(!passwordEncoder.matches(previousPassword, findUser.getPassword())){
+        if(passwordEncoder.matches(previousPassword, findUser.getPassword())){
             throw new PasswordNotFoundException("Password is not correct");
         }
+
         findUser.updatePassword(passwordEncoder.encode(newPassword));
     }
 
-    public void delete(Long id, String password) {
+    @Transactional
+    public void deleteUser(Long id, String userName, String rawPassword) {
 
-        String encodedPassword = passwordEncoder.encode(password);
+        User findUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        User findUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        if (!findUser.getUserName().equals(userName)) {
+            throw new UserNotFoundException("User Not Found");
+        }
 
-        if (!findUser.getPassword().equals(encodedPassword)) {
-            throw new UserNotFoundException("Password is not correct");
+        if (passwordEncoder.matches(rawPassword, findUser.getPassword())) {
+            throw new PasswordNotFoundException("Password is not correct");
         }
 
         userRepository.deleteById(id);

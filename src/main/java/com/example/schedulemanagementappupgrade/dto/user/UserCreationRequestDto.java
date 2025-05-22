@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class CreateUserRequestDto {
+public class UserCreationRequestDto {
 
     @NotBlank
     @Size(max = 4, message = "유저명은 4글자 이하여야 합니다.")
@@ -25,7 +25,7 @@ public class CreateUserRequestDto {
     )
     private final String password;
 
-    public CreateUserRequestDto(String userName, String emailAddress, String password) {
+    public UserCreationRequestDto(String userName, String emailAddress, String password) {
         this.userName = userName;
         this.emailAddress = emailAddress;
         this.password = password;

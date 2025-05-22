@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class DeleteUserRequestDto {
+public class UserDeletionRequestDto {
 
     @NotNull(message = "유저명은 필수입니다.")
     private final String userName;
@@ -12,7 +12,7 @@ public class DeleteUserRequestDto {
     @NotNull(message = "비밀번호는 필수입니다.")
     private final String password;
 
-    public DeleteUserRequestDto(String userName, String password) {
+    public UserDeletionRequestDto(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }

@@ -1,9 +1,6 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
-import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentRequestDto;
-import com.example.schedulemanagementappupgrade.dto.comment.CreateCommentResponseDto;
-import com.example.schedulemanagementappupgrade.dto.comment.DeletionCommentRequestDto;
+import com.example.schedulemanagementappupgrade.dto.comment.*;
 import com.example.schedulemanagementappupgrade.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,14 +22,14 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateCommentResponseDto> createComment(
+    public ResponseEntity<CommentCreationResponseDto> createComment(
             @PathVariable Long scheduleId,
-            @Valid @RequestBody CreateCommentRequestDto requestDto,
+            @Valid @RequestBody CommentCreationRequestDto requestDto,
             HttpServletRequest request
     ) {
         Long userId = getLoginUserId(request);
 
-        CreateCommentResponseDto createCommentResponseDto = commentService.createComment(
+        CommentCreationResponseDto createCommentResponseDto = commentService.createComment(
                 userId,
                 scheduleId,
                 requestDto.getContent()
@@ -49,15 +46,35 @@ public class CommentController {
         return ResponseEntity.ok(commentResponseDto);
     }
 
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @PathVariable Long scheduleId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentUpdateRequestDto requestDto,
+            HttpServletRequest request
+    ) {
+        Long userId = getLoginUserId(request);
+
+        CommentResponseDto updatedComment = commentService.updateComment(
+                userId,
+                scheduleId,
+                commentId,
+                requestDto.getContent(),
+                requestDto.getPassword()
+        );
+        return ResponseEntity.ok(updatedComment);
+    }
+
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
-            @Valid@RequestBody DeletionCommentRequestDto requestDto,
+            @Valid@RequestBody CommentDeletionRequestDto requestDto,
             HttpServletRequest request
     ) {
         Long userId = getLoginUserId(request);
         commentService.deleteComment(userId, scheduleId,commentId, requestDto.getPassword());
         return ResponseEntity.ok().build();
     }
+
 }

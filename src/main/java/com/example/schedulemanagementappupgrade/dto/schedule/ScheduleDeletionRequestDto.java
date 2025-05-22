@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.dto.comment;
+package com.example.schedulemanagementappupgrade.dto.schedule;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-public class DeletionCommentRequestDto {
+public class ScheduleDeletionRequestDto {
 
-    @NotNull(message = "비밀번호는 필수입니다.")
+    @NotNull(message = "Password is required.")
     private final String password;
 }

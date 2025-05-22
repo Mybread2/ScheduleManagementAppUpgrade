@@ -24,13 +24,13 @@ public class ScheduleController {
 
     // 내 일정 등록
     @PostMapping
-    public ResponseEntity<CreateScheduleResponseDto> createSchedule(
-            @Valid @RequestBody CreateScheduleRequestDto requestDto,
+    public ResponseEntity<ScheduleCreationResponseDto> createSchedule(
+            @Valid @RequestBody ScheduleCreationRequestDto requestDto,
             HttpServletRequest request) {
 
         Long userId = getLoginUserId(request);
 
-        CreateScheduleResponseDto createScheduleResponseDto = scheduleService.createSchedule(
+        ScheduleCreationResponseDto createScheduleResponseDto = scheduleService.createSchedule(
                 userId,
                 requestDto.getTitle(),
                 requestDto.getContents()
@@ -40,23 +40,23 @@ public class ScheduleController {
 
     // 내 일정 전체 조회
     @GetMapping
-    public ResponseEntity<List<FindAllSchedulesWithUserIdResponseDto>> getMySchedules(
+    public ResponseEntity<List<ScheduleResponseDto>> getMySchedules(
             HttpServletRequest request){
 
         Long userId = getLoginUserId(request);
-        List<FindAllSchedulesWithUserIdResponseDto> foundSchedules = scheduleService.findSchedules(userId);
+        List<ScheduleResponseDto> foundSchedules = scheduleService.findSchedules(userId);
 
         return ResponseEntity.ok(foundSchedules);
     }
 
     // 내 일정 단건 조회
     @GetMapping("/{scheduleId}")
-    public ResponseEntity<FindScheduleWithScheduleIdResponseDto> findScheduleById(
+    public ResponseEntity<ScheduleResponseDto> findScheduleById(
             @PathVariable Long scheduleId,
             HttpServletRequest request) {
 
         Long userId = getLoginUserId(request);
-        FindScheduleWithScheduleIdResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
+        ScheduleResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
 
         return ResponseEntity.ok(findScheduleWithUserNameResponseDto);
     }
@@ -65,7 +65,7 @@ public class ScheduleController {
     @PatchMapping("/{scheduleId}")
     public ResponseEntity<Void> updateSchedule(
             @PathVariable Long scheduleId,
-            @Valid @RequestBody UpdateScheduleRequestDto requestDto,
+            @Valid @RequestBody ScheduleUpdateRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
@@ -78,7 +78,7 @@ public class ScheduleController {
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long scheduleId,
-            @Valid @RequestBody DeleteScheduleRequestDto requestDto,
+            @Valid @RequestBody ScheduleDeletionRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);

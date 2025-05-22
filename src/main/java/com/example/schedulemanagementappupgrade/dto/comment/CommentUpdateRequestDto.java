@@ -7,9 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
-public class CreateCommentRequestDto {
+@NoArgsConstructor
+public class CommentUpdateRequestDto {
 
-    @NotBlank(message = "댓글 내용을 입력해주세요.")
-    private final String content;
+    @NotBlank(message = "Content is required")
+    private String content;
+
+    @NotBlank(message = "Password is required")
+    private String password;
 }

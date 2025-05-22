@@ -22,9 +22,9 @@ public class UserController {
 
     // 회원가입
     @PostMapping
-    public ResponseEntity<CreateUserResponseDto> createUser(
-            @Valid @RequestBody CreateUserRequestDto requestDto) {
-        CreateUserResponseDto createUserResponseDto = userService.createUser(
+    public ResponseEntity<UserCreationResponseDto> createUser(
+            @Valid @RequestBody UserCreationRequestDto requestDto) {
+        UserCreationResponseDto createUserResponseDto = userService.createUser(
                 requestDto.getUserName(),
                 requestDto.getEmailAddress(),
                 requestDto.getPassword()
@@ -35,11 +35,11 @@ public class UserController {
 
     // 내 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<FindUserResponseDto> getMyInfo(HttpServletRequest request) {
+    public ResponseEntity<UserResponseDto> getMyInfo(HttpServletRequest request) {
 
         Long userId = getLoginUserId(request);
 
-        FindUserResponseDto responseDto = userService.findById(userId);
+        UserResponseDto responseDto = userService.findById(userId);
 
         return ResponseEntity.ok(responseDto);
     }
@@ -47,7 +47,7 @@ public class UserController {
     // 내 비밀번호 변경
     @PatchMapping("/me/password")
     public ResponseEntity<Void> updatePassword(
-            @Valid @RequestBody UpdatePasswordRequestDto requestDto,
+            @Valid @RequestBody PasswordUpdateRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
@@ -61,11 +61,11 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
-            @Valid @RequestBody DeleteUserRequestDto requestDto,
+            @Valid @RequestBody UserDeletionRequestDto requestDto,
             HttpServletRequest request)
     {
         Long userId = getLoginUserId(request);
-        userService.delete(userId, requestDto.getPassword());
+        userService.deleteUser(userId, requestDto.getUserName(), requestDto.getPassword());
 
         // 세션 무효화
         request.getSession(false).invalidate();

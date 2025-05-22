@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-public class FindScheduleWithScheduleIdResponseDto {
+public class ScheduleResponseDto {
     private final Long id;
 
     private final String title;

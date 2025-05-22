@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-public class CreateScheduleRequestDto {
-    @NotBlank(message = "제목은 필수입니다.")
-    @Size(max = 50, message = "제목은 50자 이하여야 합니다.")
+public class ScheduleCreationRequestDto {
+    @NotBlank(message = "Title is required.")
+    @Size(max = 50, message = "Title must be less than 90 characters")
     private final String title;
 
-    @NotBlank(message = "내용은 필수입니다.")
-    @Size(max = 500, message = "내용은 500자 이하여야 합니다.")
+    @NotBlank(message = "Content is required.")
+    @Size(max = 500, message = "Content must be less than 500 characters")
     private final String contents;
 }
