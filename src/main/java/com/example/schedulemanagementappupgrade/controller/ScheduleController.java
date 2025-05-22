@@ -1,10 +1,11 @@
 package com.example.schedulemanagementappupgrade.controller;
 
+import com.example.schedulemanagementappupgrade.config.resolver.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.schedule.*;
 import com.example.schedulemanagementappupgrade.service.ScheduleService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,35 +18,26 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    // 로그인 유무 판단하는 로직 (세션에 로그인한 userId가 있는지 검증)
-    private Long getLoginUserId(HttpServletRequest request) {
-       return (Long) request.getSession(false).getAttribute("userId");
-    }
-
     // 내 일정 등록
     @PostMapping
     public ResponseEntity<ScheduleCreationResponseDto> createSchedule(
             @Valid @RequestBody ScheduleCreationRequestDto requestDto,
-            HttpServletRequest request) {
-
-        Long userId = getLoginUserId(request);
-
+            @LoginUser Long userId)
+    {
         ScheduleCreationResponseDto createScheduleResponseDto = scheduleService.createSchedule(
                 userId,
                 requestDto.getTitle(),
                 requestDto.getContents()
         );
-        return ResponseEntity.ok(createScheduleResponseDto);
+        return new ResponseEntity<>(createScheduleResponseDto, HttpStatus.CREATED);
     }
 
     // 내 일정 전체 조회
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> getMySchedules(
-            HttpServletRequest request){
-
-        Long userId = getLoginUserId(request);
+            @LoginUser Long userId)
+    {
         List<ScheduleResponseDto> foundSchedules = scheduleService.findSchedules(userId);
-
         return ResponseEntity.ok(foundSchedules);
     }
 
@@ -53,11 +45,9 @@ public class ScheduleController {
     @GetMapping("/{scheduleId}")
     public ResponseEntity<ScheduleResponseDto> findScheduleById(
             @PathVariable Long scheduleId,
-            HttpServletRequest request) {
-
-        Long userId = getLoginUserId(request);
+            @LoginUser Long userId)
+    {
         ScheduleResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
-
         return ResponseEntity.ok(findScheduleWithUserNameResponseDto);
     }
 
@@ -66,9 +56,8 @@ public class ScheduleController {
     public ResponseEntity<Void> updateSchedule(
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleUpdateRequestDto requestDto,
-            HttpServletRequest request)
+            @LoginUser Long userId)
     {
-        Long userId = getLoginUserId(request);
         scheduleService.updateSchedule(userId, scheduleId ,requestDto.getTitle(), requestDto.getContents(), requestDto.getPassword());
         return ResponseEntity.ok().build();
 
@@ -79,11 +68,10 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleDeletionRequestDto requestDto,
-            HttpServletRequest request)
+            @LoginUser Long userId)
     {
-        Long userId = getLoginUserId(request);
         scheduleService.deleteSchedule(userId, scheduleId, requestDto.getPassword());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
 
     }
 

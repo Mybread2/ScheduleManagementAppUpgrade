@@ -1,8 +1,8 @@
 package com.example.schedulemanagementappupgrade.controller;
 
+import com.example.schedulemanagementappupgrade.config.resolver.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.user.*;
 import com.example.schedulemanagementappupgrade.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
-    private Long getLoginUserId(HttpServletRequest request) {
-        return (Long) request.getSession(false).getAttribute("userId");
-    }
 
     // 회원가입
     @PostMapping
@@ -35,12 +31,10 @@ public class UserController {
 
     // 내 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getMyInfo(HttpServletRequest request) {
-
-        Long userId = getLoginUserId(request);
-
+    public ResponseEntity<UserResponseDto> getMyInfo(
+            @LoginUser Long userId)
+    {
         UserResponseDto responseDto = userService.findById(userId);
-
         return ResponseEntity.ok(responseDto);
     }
 
@@ -48,10 +42,8 @@ public class UserController {
     @PatchMapping("/me/password")
     public ResponseEntity<Void> updatePassword(
             @Valid @RequestBody PasswordUpdateRequestDto requestDto,
-            HttpServletRequest request)
+            @LoginUser Long userId)
     {
-        Long userId = getLoginUserId(request);
-
         userService.updatePassword(
                 userId,
                 requestDto.getPreviousPassword(),
@@ -62,13 +54,9 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
             @Valid @RequestBody UserDeletionRequestDto requestDto,
-            HttpServletRequest request)
+            @LoginUser Long userId)
     {
-        Long userId = getLoginUserId(request);
         userService.deleteUser(userId, requestDto.getUserName(), requestDto.getPassword());
-
-        // 세션 무효화
-        request.getSession(false).invalidate();
         return ResponseEntity.ok().build();
     }
 
