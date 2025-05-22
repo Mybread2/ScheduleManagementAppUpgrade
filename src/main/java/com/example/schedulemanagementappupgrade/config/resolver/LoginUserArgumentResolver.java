@@ -55,7 +55,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
             throw new IllegalStateException("User ID in session is not of type Long. Actual type: " + userIdAttribute.getClass().getName());
         }
 
-        return (Long) userIdAttribute; // 명시적으로 Long 타입 반환
+        return userIdAttribute; // 명시적으로 Long 타입 반환
     }
 }
 

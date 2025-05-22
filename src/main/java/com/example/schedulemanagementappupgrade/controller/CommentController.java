@@ -47,7 +47,13 @@ public class CommentController {
             @Valid @RequestBody CommentUpdateRequestDto requestDto,
             @LoginUser Long userId
     ) {
-        commentService.updateComment(userId, scheduleId, commentId, requestDto.getContent(), requestDto.getPassword());
+        commentService.updateComment(
+                userId,
+                scheduleId,
+                commentId,
+                requestDto.getContent(),
+                requestDto.getPassword());
+
         return ResponseEntity.ok().build();
     }
 
@@ -58,7 +64,12 @@ public class CommentController {
             @Valid @RequestBody CommentDeletionRequestDto requestDto,
             @LoginUser Long userId
     ) {
-        commentService.deleteComment(userId, scheduleId,commentId, requestDto.getPassword());
+        commentService.deleteComment(
+                userId,
+                scheduleId,
+                commentId,
+                requestDto.getPassword());
+
         return ResponseEntity.noContent().build();
     }
 

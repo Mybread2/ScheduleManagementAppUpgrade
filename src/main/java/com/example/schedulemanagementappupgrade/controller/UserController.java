@@ -25,7 +25,6 @@ public class UserController {
                 requestDto.getEmailAddress(),
                 requestDto.getPassword()
         );
-
         return new ResponseEntity<>(createUserResponseDto, HttpStatus.CREATED);
     }
 
@@ -48,6 +47,7 @@ public class UserController {
                 userId,
                 requestDto.getPreviousPassword(),
                 requestDto.getNewPassword());
+
         return ResponseEntity.ok().build();
     }
 
@@ -56,8 +56,12 @@ public class UserController {
             @Valid @RequestBody UserDeletionRequestDto requestDto,
             @LoginUser Long userId)
     {
-        userService.deleteUser(userId, requestDto.getUserName(), requestDto.getPassword());
-        return ResponseEntity.ok().build();
+        userService.deleteUser(
+                userId,
+                requestDto.getUserName(),
+                requestDto.getPassword());
+
+        return ResponseEntity.noContent().build();
     }
 
 }

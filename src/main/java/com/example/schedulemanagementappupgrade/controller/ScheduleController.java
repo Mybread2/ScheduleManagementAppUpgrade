@@ -48,6 +48,7 @@ public class ScheduleController {
             @LoginUser Long userId)
     {
         ScheduleResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
+
         return ResponseEntity.ok(findScheduleWithUserNameResponseDto);
     }
 
@@ -58,7 +59,12 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleUpdateRequestDto requestDto,
             @LoginUser Long userId)
     {
-        scheduleService.updateSchedule(userId, scheduleId ,requestDto.getTitle(), requestDto.getContents(), requestDto.getPassword());
+        scheduleService.updateSchedule(
+                userId, scheduleId ,
+                requestDto.getTitle(),
+                requestDto.getContents(),
+                requestDto.getPassword());
+
         return ResponseEntity.ok().build();
 
     }
@@ -70,7 +76,11 @@ public class ScheduleController {
             @Valid @RequestBody ScheduleDeletionRequestDto requestDto,
             @LoginUser Long userId)
     {
-        scheduleService.deleteSchedule(userId, scheduleId, requestDto.getPassword());
+        scheduleService.deleteSchedule(
+                userId,
+                scheduleId,
+                requestDto.getPassword());
+
         return ResponseEntity.noContent().build();
 
     }

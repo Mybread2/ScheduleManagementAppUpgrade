@@ -50,7 +50,13 @@ public class UserService {
             throw new PasswordNotFoundException("Password is not correct");
         }
 
-        findUser.updatePassword(passwordEncoder.encode(newPassword));
+        User updatedPassword = new User(
+                findUser.getUserName(),
+                findUser.getEmailAddress(),
+                passwordEncoder.encode(newPassword)
+        );
+
+        userRepository.save(updatedPassword);
     }
 
     @Transactional
