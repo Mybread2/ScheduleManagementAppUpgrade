@@ -1,6 +1,6 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
+import com.example.schedulemanagementappupgrade.config.security.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.exception.EmailAddressNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;

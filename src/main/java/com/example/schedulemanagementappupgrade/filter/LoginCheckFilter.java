@@ -1,9 +1,9 @@
 package com.example.schedulemanagementappupgrade.filter;
 
 import com.example.schedulemanagementappupgrade.config.resolver.LoginUserArgumentResolver;
+import com.example.schedulemanagementappupgrade.exception.UnauthorizedException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.util.PatternMatchUtils;
 
@@ -15,7 +15,8 @@ public class LoginCheckFilter implements Filter {
 
     private static final List<WhiteListEntry> WHITE_LIST_ENTRIES = Arrays.asList(
             new WhiteListEntry("POST", "/users"),
-            new WhiteListEntry("GET", "/schedules/comments/*")
+            new WhiteListEntry("GET", "/schedules/comments/*"),
+            new WhiteListEntry("Post", "/auth/login")
     );
 
 
@@ -38,14 +39,9 @@ public class LoginCheckFilter implements Filter {
         HttpSession session = httpRequest.getSession(false);
 
         if (session == null || session.getAttribute(LoginUserArgumentResolver.USER_ID_SESSION_ATTRIBUTE_NAME) == null) {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            httpResponse.setContentType("application/json");
-            httpResponse.setCharacterEncoding("UTF-8");
-            httpResponse.getWriter().write("{\"error\": \"Authentication Required\", \"message\": \"Login is required.\"}");
-            return; // 인증 실패 시 여기서 응답하고 필터 체인 종료
+            throw new UnauthorizedException("Login is required.");
         }
-// 인증 성공 시
+        // 인증 성공 시
         chain.doFilter(request, response); // 다음 필터 또는 서블릿으로 요청 전달
 
     }

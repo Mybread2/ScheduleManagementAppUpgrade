@@ -1,6 +1,6 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.config.PasswordEncoder;
+import com.example.schedulemanagementappupgrade.config.security.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.dto.schedule.ScheduleCreationResponseDto;
 import com.example.schedulemanagementappupgrade.dto.schedule.ScheduleResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Schedule;

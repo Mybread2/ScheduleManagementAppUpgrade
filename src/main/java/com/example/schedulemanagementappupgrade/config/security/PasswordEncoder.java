@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.config;
+package com.example.schedulemanagementappupgrade.config.security;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;

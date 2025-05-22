@@ -1,6 +1,6 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.config.resolver.LoginUser;
+import com.example.schedulemanagementappupgrade.config.annotation.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.comment.*;
 import com.example.schedulemanagementappupgrade.service.CommentService;
 import jakarta.validation.Valid;

@@ -1,5 +1,6 @@
 package com.example.schedulemanagementappupgrade.config.resolver;
 
+import com.example.schedulemanagementappupgrade.config.annotation.LoginUser;
 import com.example.schedulemanagementappupgrade.exception.UnauthorizedException;
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +16,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    public static final String USER_ID_SESSION_ATTRIBUTE_NAME = "userID";
+    public static final String USER_ID_SESSION_ATTRIBUTE_NAME = "userId";
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -29,7 +30,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     public Object resolveArgument(
             @NonNull MethodParameter parameter,
             ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest,
+            @NonNull NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) {
         // supportsParameter()가 true를 반환했을 때,
         // 스프링이 이 메서드를 호출해서 해당 파라미터에 어떤 값을 넣을지 결정
@@ -38,6 +39,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         HttpSession session = request.getSession(false);
 
         if (session == null) {
+            // 필터에서 이미 처리되었어야하지만, 방어적으로 체크
             throw new UnauthorizedException("User not authenticated.");
         }
 
@@ -47,13 +49,13 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
             throw new UnauthorizedException("User not authenticated.");
         }
 
+        // 타입 체크 및 변환
         if (!(userIdAttribute instanceof Long)) {
-            throw new IllegalStateException("User ID in session is not of type Long.");
+            // 세션에 저장된 userId의 타입이 Long이 아닌 경우, 심각한 문제일 수 있음
+            throw new IllegalStateException("User ID in session is not of type Long. Actual type: " + userIdAttribute.getClass().getName());
         }
 
-        return userIdAttribute;
-        // 로그인 시 세션에 저장된 "loginUser"라는 이름의 속성을 꺼내주어서
-        // User 객체를 컨트롤러 메서드의 파라미터에 자동으로 주입해준다.
+        return (Long) userIdAttribute; // 명시적으로 Long 타입 반환
     }
 }
 

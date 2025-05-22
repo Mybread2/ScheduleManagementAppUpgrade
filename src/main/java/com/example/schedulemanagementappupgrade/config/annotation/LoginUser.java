@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.config.resolver;
+package com.example.schedulemanagementappupgrade.config.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
