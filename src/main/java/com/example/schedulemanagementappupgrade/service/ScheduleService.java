@@ -5,6 +5,7 @@ import com.example.schedulemanagementappupgrade.dto.schedule.ScheduleCreationRes
 import com.example.schedulemanagementappupgrade.dto.schedule.ScheduleResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Schedule;
 import com.example.schedulemanagementappupgrade.entity.User;
+import com.example.schedulemanagementappupgrade.exception.AccessDeniedException;
 import com.example.schedulemanagementappupgrade.exception.PasswordNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.ScheduleNotFoundException;
 import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
@@ -39,7 +40,7 @@ public class ScheduleService {
         List<Schedule> schedules = scheduleRepository.findByUserId(userId);
 
         return schedules.stream()
-                .map(s -> new ScheduleResponseDto(s.getId(), s.getTitle(), s.getContents()))
+                .map(s -> new ScheduleResponseDto(s.getId(), s.getUserName() ,s.getTitle(), s.getContents()))
                 .toList();
     }
 
@@ -50,21 +51,22 @@ public class ScheduleService {
         if (!findSchedule.getUser().getId().equals(userId)) {
             throw new ScheduleNotFoundException("No permission for this Schedule");
         }
-        return new ScheduleResponseDto(findSchedule.getId(), findSchedule.getTitle(), findSchedule.getContents());
+        return new ScheduleResponseDto(findSchedule.getId(), findSchedule.getUserName() ,findSchedule.getTitle(), findSchedule.getContents());
     }
 
     @Transactional
     public void updateSchedule(Long userId, Long scheduleId, String title, String contents, String password) {
 
-        String encodedPassword = passwordEncoder.encode(password);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) throw new PasswordNotFoundException("Password is not correct");
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
-        User user = schedule.getUser();
-        if (user == null) throw new UserNotFoundException("User Not Found");
-        if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
-        if (!user.getPassword().equals(encodedPassword)) throw new PasswordNotFoundException("Password is not correct");
+        // 일정이 해당 유저의 일정에 속하는지 확인
+        if (!schedule.getUser().getId().equals(user.getId())) throw new AccessDeniedException("No permission for this Schedule");
 
         Schedule updatedSchedule = new Schedule(
                 schedule.getId(),
@@ -80,15 +82,16 @@ public class ScheduleService {
     @Transactional
     public void deleteSchedule(Long userId, Long scheduleId, String password) {
 
-        String encodedPassword = passwordEncoder.encode(password);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) throw new PasswordNotFoundException("Password is not correct");
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
 
-        User user = schedule.getUser();
-        if (user == null) throw new UserNotFoundException("User Not Found");
-        if (!user.getId().equals(userId)) throw new ScheduleNotFoundException("No permission for this Schedule");
-        if (!user.getPassword().equals(encodedPassword)) throw new PasswordNotFoundException("Password is not correct");
+        if (!user.getId().equals(schedule.getUser().getId())) throw new AccessDeniedException("No permission for this Schedule");
+
 
         scheduleRepository.deleteById(scheduleId);
     }

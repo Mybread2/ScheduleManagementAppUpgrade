@@ -53,7 +53,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long userId, Long scheduleId, Long commentId, String newContent, String userRawPassword) {
+    public void updateComment(Long userId, Long scheduleId, Long commentId, String content, String userRawPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         if(passwordEncoder.matches(userRawPassword, user.getPassword())){
@@ -74,8 +74,14 @@ public class CommentService {
             throw new AccessDeniedException("You do not have permission to delete this comment");
         }
 
-        comment.updateContent(newContent);
-        return new CommentResponseDto(comment.getId(), comment.getUser().getUserName(), comment.getContent());
+        Comment updatedComment = new Comment(
+                comment.getId(),
+                comment.getUser(),
+                comment.getSchedule(),
+                content
+        );
+
+        commentRepository.save(updatedComment);
     }
 
     @Transactional

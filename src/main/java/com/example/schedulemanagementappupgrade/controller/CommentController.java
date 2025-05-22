@@ -47,22 +47,15 @@ public class CommentController {
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(
+    public ResponseEntity<Void> updateComment(
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequestDto requestDto,
             HttpServletRequest request
     ) {
         Long userId = getLoginUserId(request);
-
-        CommentResponseDto updatedComment = commentService.updateComment(
-                userId,
-                scheduleId,
-                commentId,
-                requestDto.getContent(),
-                requestDto.getPassword()
-        );
-        return ResponseEntity.ok(updatedComment);
+        commentService.updateComment(userId, scheduleId, commentId, requestDto.getContent(), requestDto.getPassword());
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{commentId}")
