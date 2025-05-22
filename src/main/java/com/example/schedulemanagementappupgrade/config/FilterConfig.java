@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FilterConfig {
-
     @Bean
-    public FilterRegistrationBean<LoginCheckFilter> filterRegistrationBean() {
+    public FilterRegistrationBean<LoginCheckFilter> filterRegistrationBean(LoginCheckFilter loginCheckFilter) {
         FilterRegistrationBean<LoginCheckFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new LoginCheckFilter());
+        registrationBean.setFilter(loginCheckFilter);
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(1);
         return registrationBean;
     }
 }
+

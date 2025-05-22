@@ -9,11 +9,8 @@ public class UserResponseDto {
 
     private final String emailAddress;
 
-    private final String password;
-
-    public UserResponseDto(String userName, String emailAddress, String password) {
+    public UserResponseDto(String userName, String emailAddress) {
         this.userName = userName;
         this.emailAddress = emailAddress;
-        this.password = password;
     }
 }

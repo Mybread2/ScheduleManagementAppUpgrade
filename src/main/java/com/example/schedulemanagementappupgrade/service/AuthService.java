@@ -19,7 +19,7 @@ public class AuthService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
-        if(passwordEncoder.matches(password, user.getPassword())
+        if(!passwordEncoder.matches(password, user.getPassword())
         ) throw new UserNotFoundException("Password is not correct");
 
         if(!user.getEmailAddress().equals(emailAddress)) throw new EmailAddressNotFoundException("Email Address is not correct");
