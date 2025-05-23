@@ -25,14 +25,40 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+    }
+
+    private Schedule findScheduleById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
+    }
+
+    private void verifyUserPassword(User user, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new PasswordNotFoundException("User password is not correct");
+        }
+    }
+
+    private void validateCommentScheduleAndOwnership(Comment comment, Long scheduleId, Long userId) {
+        if (!comment.getSchedule().getId().equals(scheduleId)) {
+            throw new AccessDeniedException("Comment with id " + comment.getId() + " not found under schedule " + scheduleId);
+        }
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission for this comment");
+        }
+    }
+
     @Transactional
     public CommentCreationResponseDto createComment(Long userId, Long scheduleId, String content) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+        User user = findUserById(userId);
+        Schedule schedule = findScheduleById(scheduleId);
 
         Comment comment = new Comment(user, schedule, content);
         Comment savedComment = commentRepository.save(comment);
@@ -41,9 +67,7 @@ public class CommentService {
     }
 
     public List<CommentResponseDto> findComment(Long scheduleId) {
-
-       scheduleRepository.findById(scheduleId)
-               .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+        findScheduleById(scheduleId);
 
         List<Comment> comments = commentRepository.findByScheduleId(scheduleId);
 
@@ -54,59 +78,22 @@ public class CommentService {
 
     @Transactional
     public void updateComment(Long userId, Long scheduleId, Long commentId, String content, String userRawPassword) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-        if(passwordEncoder.matches(userRawPassword, user.getPassword())){
-            throw new PasswordNotFoundException("User password is not correct");
-        }
+        User user = findUserById(userId);
+        verifyUserPassword(user, userRawPassword);
+        findScheduleById(scheduleId);
+        Comment comment = findCommentById(commentId);
+        validateCommentScheduleAndOwnership(comment, scheduleId, userId);
 
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
-
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
-
-        // 댓글이 해당 일정에 속하는지 확인
-        if(!comment.getSchedule().getId().equals(schedule.getId())){
-            throw new AccessDeniedException("Comment with id " + commentId + " not found under schedule " + scheduleId);
-        }
-        if(!comment.getUser().getId().equals(userId)){
-            throw new AccessDeniedException("You do not have permission to delete this comment");
-        }
-
-        Comment updatedComment = new Comment(
-                comment.getId(),
-                comment.getUser(),
-                comment.getSchedule(),
-                content
-        );
-
-        commentRepository.save(updatedComment);
+        comment.updateComment(content);
     }
 
     @Transactional
     public void deleteComment(Long userId, Long scheduleId, Long commentId, String userRawPassword) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
-
-        if (passwordEncoder.matches(userRawPassword, user.getPassword())) {
-            throw new PasswordNotFoundException("User password is not correct");
-        }
-
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
-
-        if (!comment.getSchedule().getId().equals(schedule.getId())) {
-            throw new AccessDeniedException("Comment with id " + commentId + " not found under schedule " + scheduleId);
-        }
-
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("You do not have permission to delete this comment");
-        }
+        User user = findUserById(userId);
+        verifyUserPassword(user, userRawPassword);
+        findScheduleById(scheduleId);
+        Comment comment = findCommentById(commentId);
+        validateCommentScheduleAndOwnership(comment, scheduleId, userId);
 
         commentRepository.delete(comment);
     }

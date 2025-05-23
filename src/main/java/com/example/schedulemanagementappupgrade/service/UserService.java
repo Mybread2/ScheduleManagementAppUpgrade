@@ -20,12 +20,32 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public UserCreationResponseDto createUser(String userName, String emailAddress, String password) {
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+    }
 
+    private void verifyUserPassword(User user, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new PasswordNotCorrectException("Password is not correct");
+        }
+    }
+
+    private void verifyUserName(User user, String userName) {
+        if (!user.getUserName().equals(userName)) {
+            throw new UserNameNotCorrectException("UserName is not correct");
+        }
+    }
+
+    private void verifyEmailAddress(String emailAddress) {
         if (userRepository.existsByEmailAddress(emailAddress)) {
             throw new SameEmailExistException("This email already exists.");
         }
+    }
+
+    @Transactional
+    public UserCreationResponseDto createUser(String userName, String emailAddress, String password) {
+        verifyEmailAddress(emailAddress);
 
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(userName, emailAddress, encodedPassword);
@@ -36,37 +56,25 @@ public class UserService {
 
     @Transactional
     public UserResponseDto findById(Long id) {
-
-        User findUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        User findUser = findUserById(id);
 
         return new UserResponseDto(findUser.getUserName(), findUser.getEmailAddress());
     }
 
     @Transactional
     public void updatePassword(Long id, String previousPassword, String newPassword) {
+        User findUser = findUserById(id);
+        verifyUserPassword(findUser, previousPassword);
 
-        User findUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
-        if (!passwordEncoder.matches(previousPassword, findUser.getPassword())){
-            throw new PasswordNotCorrectException("Password is not correct");
-        }
         findUser.updatePassword(passwordEncoder.encode(newPassword));
     }
 
     @Transactional
     public void deleteUser(Long id, String userName, String rawPassword) {
-        User findUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        User findUser = findUserById(id);
+        verifyUserName(findUser, userName);
+        verifyUserPassword(findUser, rawPassword);
 
-        if (!findUser.getUserName().equals(userName)) {
-            throw new UserNameNotCorrectException("UserName is not correct");
-        }
-
-        if (!passwordEncoder.matches(rawPassword, findUser.getPassword())) {
-            throw new PasswordNotCorrectException("Password is not correct");
-        }
         userRepository.deleteById(id);
     }
 }

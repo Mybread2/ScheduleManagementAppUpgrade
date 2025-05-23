@@ -25,10 +25,31 @@ public class ScheduleService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+    }
+
+    private Schedule findScheduleById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
+    }
+
+    private void verifyUserPassword(User user, String password) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new PasswordNotFoundException("Password is not correct");
+        }
+    }
+
+    private void checkScheduleOwnership(Schedule schedule,Long userId) {
+        if (!schedule.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No permission for this Schedule");
+        }
+    }
+
     @Transactional
     public ScheduleCreationResponseDto createSchedule(Long userId, String title, String contents) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        User user = findUserById(userId);
 
         Schedule schedule = new Schedule(user, user.getUserName(), title, contents);
         Schedule savedSchedule = scheduleRepository.save(schedule);
@@ -45,54 +66,26 @@ public class ScheduleService {
     }
 
     public ScheduleResponseDto findById(Long userId, Long scheduleId) {
-        Schedule findSchedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
-
-        if (!findSchedule.getUser().getId().equals(userId)) {
-            throw new ScheduleNotFoundException("No permission for this Schedule");
-        }
+        Schedule findSchedule = findScheduleById(scheduleId);
+        checkScheduleOwnership(findSchedule, userId);
         return new ScheduleResponseDto(findSchedule.getId(), findSchedule.getUserName() ,findSchedule.getTitle(), findSchedule.getContents());
     }
 
     @Transactional
     public void updateSchedule(Long userId, Long scheduleId, String title, String contents, String password) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
-        if (passwordEncoder.matches(password, user.getPassword())) throw new PasswordNotFoundException("Password is not correct");
-
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
-
-        // 일정이 해당 유저의 일정에 속하는지 확인
-        if (!schedule.getUser().getId().equals(user.getId())) throw new AccessDeniedException("No permission for this Schedule");
-
-        Schedule updatedSchedule = new Schedule(
-                schedule.getId(),
-                user,
-                user.getUserName(),
-                title,
-                contents
-        );
-
-        scheduleRepository.save(updatedSchedule);
+        User user = findUserById(userId);
+        verifyUserPassword(user, password);
+        Schedule schedule = findScheduleById(scheduleId);
+        checkScheduleOwnership(schedule, userId);
+        schedule.updateSchedule(title, contents);
     }
 
     @Transactional
     public void deleteSchedule(Long userId, Long scheduleId, String password) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
-        if (passwordEncoder.matches(password, user.getPassword())) throw new PasswordNotFoundException("Password is not correct");
-
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
-
-        if (!user.getId().equals(schedule.getUser().getId())) throw new AccessDeniedException("No permission for this Schedule");
-
-
-        scheduleRepository.deleteById(scheduleId);
+        User user = findUserById(userId);
+        verifyUserPassword(user, password);
+        Schedule schedule = findScheduleById(scheduleId);
+        checkScheduleOwnership(schedule, userId);
+        scheduleRepository.delete(schedule);
     }
 }
