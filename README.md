@@ -107,6 +107,10 @@ MySQL 서버가 실행 중인지 확인합니다. `src/main/resources/applicatio
 | `PATCH`     | `/{commentId}`   | 특정 댓글 수정           | `CommentUpdateRequestDto` | 200 OK                            |
 | `DELETE`    | `/{commentId}`   | 특정 댓글 삭제           | `CommentDeletionRequestDto`| 204 No Content                    |
 
+
+## 7. ERD
+![ERD](ERDERD.png)
+
 ## 7. 보안 설정 (`SecurityConfig.java`)
 
 Spring Security를 사용하여 보안을 설정합니다.
