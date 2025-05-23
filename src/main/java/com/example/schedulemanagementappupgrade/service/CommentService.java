@@ -1,6 +1,5 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.config.security.PasswordEncoder;
 import com.example.schedulemanagementappupgrade.dto.comment.CommentResponseDto;
 import com.example.schedulemanagementappupgrade.dto.comment.CommentCreationResponseDto;
 import com.example.schedulemanagementappupgrade.entity.Comment;
@@ -12,6 +11,7 @@ import com.example.schedulemanagementappupgrade.repository.ScheduleRepository;
 import com.example.schedulemanagementappupgrade.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

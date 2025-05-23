@@ -1,23 +1,25 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.config.annotation.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.user.*;
+import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     // 회원가입
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<UserCreationResponseDto> createUser(
             @Valid @RequestBody UserCreationRequestDto requestDto) {
         UserCreationResponseDto createUserResponseDto = userService.createUser(
@@ -31,9 +33,10 @@ public class UserController {
     // 내 정보 조회
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMyInfo(
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
-        UserResponseDto responseDto = userService.findById(userId);
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
+        UserResponseDto responseDto = userService.findUserDtoById(currentUser.getId());
         return ResponseEntity.ok(responseDto);
     }
 
@@ -41,27 +44,29 @@ public class UserController {
     @PatchMapping("/me/password")
     public ResponseEntity<Void> updatePassword(
             @Valid @RequestBody PasswordUpdateRequestDto requestDto,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         userService.updatePassword(
-                userId,
+                currentUser.getId(),
                 requestDto.getPreviousPassword(),
                 requestDto.getNewPassword());
 
         return ResponseEntity.ok().build();
     }
 
+    // 회원 탈퇴
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyAccount(
             @Valid @RequestBody UserDeletionRequestDto requestDto,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         userService.deleteUser(
-                userId,
+                currentUser.getId(),
                 requestDto.getUserName(),
                 requestDto.getPassword());
 
         return ResponseEntity.noContent().build();
     }
-
 }

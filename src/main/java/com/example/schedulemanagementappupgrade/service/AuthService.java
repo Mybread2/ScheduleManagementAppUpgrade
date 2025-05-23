@@ -1,29 +1,50 @@
 package com.example.schedulemanagementappupgrade.service;
 
-import com.example.schedulemanagementappupgrade.config.security.PasswordEncoder;
+import com.example.schedulemanagementappupgrade.dto.auth.LoginRequestDto;
+import com.example.schedulemanagementappupgrade.dto.auth.LoginResponseDto;
 import com.example.schedulemanagementappupgrade.entity.User;
-import com.example.schedulemanagementappupgrade.exception.EmailAddressNotFoundException;
-import com.example.schedulemanagementappupgrade.exception.UserNotFoundException;
-import com.example.schedulemanagementappupgrade.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
-    public User authenticate(String userName, String password, String emailAddress) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequestDto.getEmailAddress(),
+                        loginRequestDto.getPassword()
+                )
+        );
 
-        if(!passwordEncoder.matches(password, user.getPassword())
-        ) throw new UserNotFoundException("Password is not correct");
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authentication);
 
-        if(!user.getEmailAddress().equals(emailAddress)) throw new EmailAddressNotFoundException("Email Address is not correct");
+        HttpSession session = request.getSession(true);
+        session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                context
+        );
 
-        return user;
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userService.findByEmailAddressOrThrow(userDetails.getUsername());
+
+        return new LoginResponseDto(user.getUserName(), "로그인에 성공하셨습니다.");
     }
 }

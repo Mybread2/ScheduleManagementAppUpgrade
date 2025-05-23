@@ -1,31 +1,36 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.config.annotation.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.schedule.*;
+import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.service.ScheduleService;
+import com.example.schedulemanagementappupgrade.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/schedules")
+@RequestMapping("/api/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final UserService userService;
 
     // 내 일정 등록
     @PostMapping
     public ResponseEntity<ScheduleCreationResponseDto> createSchedule(
             @Valid @RequestBody ScheduleCreationRequestDto requestDto,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         ScheduleCreationResponseDto createScheduleResponseDto = scheduleService.createSchedule(
-                userId,
+                currentUser.getId(), // 실제 사용자 ID 전달
                 requestDto.getTitle(),
                 requestDto.getContents()
         );
@@ -35,9 +40,10 @@ public class ScheduleController {
     // 내 일정 전체 조회
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> getMySchedules(
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
-        List<ScheduleResponseDto> foundSchedules = scheduleService.findSchedules(userId);
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
+        List<ScheduleResponseDto> foundSchedules = scheduleService.findSchedules(currentUser.getId());
         return ResponseEntity.ok(foundSchedules);
     }
 
@@ -45,11 +51,11 @@ public class ScheduleController {
     @GetMapping("/{scheduleId}")
     public ResponseEntity<ScheduleResponseDto> findScheduleById(
             @PathVariable Long scheduleId,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
-        ScheduleResponseDto findScheduleWithUserNameResponseDto = scheduleService.findById(userId, scheduleId);
-
-        return ResponseEntity.ok(findScheduleWithUserNameResponseDto);
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
+        ScheduleResponseDto findScheduleResponseDto = scheduleService.findById(currentUser.getId(), scheduleId);
+        return ResponseEntity.ok(findScheduleResponseDto);
     }
 
     // 내 일정 수정
@@ -57,16 +63,17 @@ public class ScheduleController {
     public ResponseEntity<Void> updateSchedule(
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleUpdateRequestDto requestDto,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         scheduleService.updateSchedule(
-                userId, scheduleId ,
+                currentUser.getId(),
+                scheduleId ,
                 requestDto.getTitle(),
                 requestDto.getContents(),
                 requestDto.getPassword());
 
         return ResponseEntity.ok().build();
-
     }
 
     // 내 일정 삭제
@@ -74,15 +81,15 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleDeletionRequestDto requestDto,
-            @LoginUser Long userId)
+            @AuthenticationPrincipal UserDetails userDetails)
     {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         scheduleService.deleteSchedule(
-                userId,
+                currentUser.getId(),
                 scheduleId,
                 requestDto.getPassword());
 
         return ResponseEntity.noContent().build();
-
     }
 
 }

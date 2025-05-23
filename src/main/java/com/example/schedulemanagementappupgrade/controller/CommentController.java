@@ -1,31 +1,36 @@
 package com.example.schedulemanagementappupgrade.controller;
 
-import com.example.schedulemanagementappupgrade.config.annotation.LoginUser;
 import com.example.schedulemanagementappupgrade.dto.comment.*;
+import com.example.schedulemanagementappupgrade.entity.User;
 import com.example.schedulemanagementappupgrade.service.CommentService;
+import com.example.schedulemanagementappupgrade.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/schedules/comments/{scheduleId}")
+@RequestMapping("/api/schedules/comments/{scheduleId}")
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<CommentCreationResponseDto> createComment(
             @PathVariable Long scheduleId,
             @Valid @RequestBody CommentCreationRequestDto requestDto,
-            @LoginUser Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         CommentCreationResponseDto createCommentResponseDto = commentService.createComment(
-                userId,
+                currentUser.getId(),
                 scheduleId,
                 requestDto.getContent()
         );
@@ -45,10 +50,11 @@ public class CommentController {
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequestDto requestDto,
-            @LoginUser Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         commentService.updateComment(
-                userId,
+                currentUser.getId(), // 실제 사용자 ID 전달
                 scheduleId,
                 commentId,
                 requestDto.getContent(),
@@ -62,10 +68,11 @@ public class CommentController {
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentDeletionRequestDto requestDto,
-            @LoginUser Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         commentService.deleteComment(
-                userId,
+                currentUser.getId(), // 실제 사용자 ID 전달
                 scheduleId,
                 commentId,
                 requestDto.getPassword());
