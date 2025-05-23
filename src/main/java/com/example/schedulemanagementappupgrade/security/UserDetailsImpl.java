@@ -1,4 +1,4 @@
-package com.example.schedulemanagementappupgrade.service;
+package com.example.schedulemanagementappupgrade.security;
 
 import com.example.schedulemanagementappupgrade.entity.User;
 import org.springframework.security.core.GrantedAuthority;
