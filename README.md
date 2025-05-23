@@ -31,6 +31,8 @@ Spring Boot와 Spring Security를 사용하여 사용자 일정 및 댓글을 �
     *   역할 기반 접근 제어 (모든 인증된 사용자는 암묵적으로 `ROLE_USER` 권한 보유)
     *   대부분의 API 엔드포인트에 대한 인증 요구
     *   일정 및 댓글 수정/삭제 시 소유권 확인
+ 
+      
 
 ## 3. 사용 기술
 
@@ -42,6 +44,8 @@ Spring Boot와 Spring Security를 사용하여 사용자 일정 및 댓글을 �
 *   **MySQL**: 관계형 데이터베이스
 *   **Lombok**: 보일러플레이트 코드 감소
 *   **Jakarta Validation**: 요청 DTO 유효성 검사
+
+
 
 ## 4. 프로젝트 구조
 
@@ -55,6 +59,8 @@ Spring Boot와 Spring Security를 사용하여 사용자 일정 및 댓글을 �
     *   `exception`: 사용자 정의 예외 클래스 및 전역 예외 처리기 (`GlobalExceptionHandler.java`)
     *   `repository`: Spring Data JPA 리포지토리 (예: `UserRepository`) - 데이터베이스 접근 인터페이스
     *   `service`: 비즈니스 로직 구현 (예: `UserService`, `ScheduleService`)
+ 
+    
 
 ## 5. 설정 및 실행 방법
 
@@ -63,15 +69,21 @@ Spring Boot와 Spring Security를 사용하여 사용자 일정 및 댓글을 �
 *   Java 17 JDK
 *   MySQL Server
 
+  
+
 ### 데이터베이스 설정
 
 MySQL 서버가 실행 중인지 확인합니다. `src/main/resources/application.properties` 파일에서 데이터베이스 연결 정보를 설정합니다: `your_schedule_db_name`, `your_mysql_username`, `your_mysql_password`를 실제 데이터베이스 정보로 변경해주세요.
 
 기본적으로 애플리케이션은 `8080` 포트에서 시작됩니다.
 
+
+
 ## 6. API 엔드포인트
 
 모든 API 엔드포인트는 `/api` 접두사를 가집니다.
+
+
 
 ### 사용자 API (`/api/users`)
 
@@ -83,6 +95,8 @@ MySQL 서버가 실행 중인지 확인합니다. `src/main/resources/applicatio
 | `GET`       | `/me`            | 현재 인증된 사용자 정보 조회 | -                         | `UserResponseDto` (200)  | 예        |
 | `PATCH`     | `/me/password`   | 현재 사용자 비밀번호 변경  | `PasswordUpdateRequestDto`| 200 OK                   | 예        |
 | `DELETE`    | `/me`            | 현재 사용자 계정 삭제      | `UserDeletionRequestDto`  | 204 No Content           | 예        |
+
+
 
 ### 일정 API (`/api/schedules`)
 
@@ -96,6 +110,8 @@ MySQL 서버가 실행 중인지 확인합니다. `src/main/resources/applicatio
 | `PATCH`     | `/{scheduleId}`  | 특정 일정 수정           | `ScheduleUpdateRequestDto`| 200 OK                          |
 | `DELETE`    | `/{scheduleId}`  | 특정 일정 삭제           | `ScheduleDeletionRequestDto`| 204 No Content                  |
 
+
+
 ### 댓글 API (`/api/schedules/comments/{scheduleId}`)
 
 일정에 대한 댓글을 관리합니다. 인증이 필요합니다.
@@ -108,8 +124,11 @@ MySQL 서버가 실행 중인지 확인합니다. `src/main/resources/applicatio
 | `DELETE`    | `/{commentId}`   | 특정 댓글 삭제           | `CommentDeletionRequestDto`| 204 No Content                    |
 
 
+
 ## 7. ERD
 ![ERD](ERDERD.png)
+
+
 
 ## 7. 보안 설정 (`SecurityConfig.java`)
 
@@ -124,6 +143,8 @@ Spring Security를 사용하여 보안을 설정합니다.
 *   **세션 관리**: `SessionCreationPolicy.IF_REQUIRED`를 사용하여 필요할 때만 세션을 생성합니다 (예: 로그인 후).
 *   **로그아웃**: HTTP 세션을 무효화하고 `JSESSIONID` 쿠키를 삭제하도록 설정되어 있습니다.
 *   **사용자 정의 UserDetails**: `UserDetailsServiceImpl`이 사용자별 데이터를 로드하고, `UserDetailsImpl`이 `User` 엔티티를 Spring Security의 `UserDetails`로 변환합니다. 모든 사용자는 `ROLE_USER` 권한을 부여받습니다.
+
+  
 
 ## 8. 데이터베이스 스키마
 
@@ -153,6 +174,8 @@ Spring Security를 사용하여 보안을 설정합니다.
 *   **`BaseEntity` (MappedSuperclass)**:
     *   `createdAt` (LocalDateTime)
     *   `updatedAt` (LocalDateTime)
+ 
+      
 
 ## 9. 예외 처리 (`GlobalExceptionHandler.java`)
 
@@ -166,6 +189,8 @@ Spring Security를 사용하여 보안을 설정합니다.
     *   `403 Forbidden`: 인가 실패
     *   `404 Not Found`: 리소스를 찾을 수 없음
     *   `500 Internal Server Error`: 일반적인 서버 측 예외
+ 
+      
 
 ## 10. 주요 서비스 로직
 
