@@ -30,8 +30,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         errorDetails.put("status", HttpStatus.FORBIDDEN.value());
         errorDetails.put("error", "Forbidden");
         errorDetails.put("message", "해당 리소스에 접근할 권한이 없습니다."); // 사용자에게 보여줄 메시지
-        // accessDeniedException.getMessage()를 포함할 수도 있지만, 보안상 민감한 정보가 포함될 수 있으므로 주의
-        // errorDetails.put("details", accessDeniedException.getMessage());
 
 
         // JSON 응답 작성
