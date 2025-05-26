@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public record UserDetailsImpl(User user) implements UserDetails {
+public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public String getPassword() {

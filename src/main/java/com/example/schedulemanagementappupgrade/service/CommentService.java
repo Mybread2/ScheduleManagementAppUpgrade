@@ -25,40 +25,40 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private User findUserById(Long userId) {
+    private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found"));
     }
 
-    private Schedule findScheduleById(Long scheduleId) {
+    private Schedule getSchedule(Long scheduleId) {
         return scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule Not Found"));
     }
 
-    private Comment findCommentById(Long commentId) {
+    private Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found."));
+                .orElseThrow(() -> new CommentNotFoundException("Comment Not Found"));
     }
 
-    private void verifyUserPassword(User user, String rawPassword) {
+    private void checkPassword(User user, String rawPassword) {
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new PasswordNotFoundException("User password is not correct");
+            throw new PasswordNotFoundException("Incorrect password");
         }
     }
 
-    private void validateCommentScheduleAndOwnership(Comment comment, Long scheduleId, Long userId) {
+    private void validateOwnership(Comment comment, Long scheduleId, Long userId) {
         if (!comment.getSchedule().getId().equals(scheduleId)) {
-            throw new AccessDeniedException("Comment with id " + comment.getId() + " not found under schedule " + scheduleId);
+            throw new AccessDeniedException("Comment not under this schedule");
         }
         if (!comment.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("You do not have permission for this comment");
+            throw new AccessDeniedException("No permission for this comment");
         }
     }
 
     @Transactional
     public CommentCreationResponseDto createComment(Long userId, Long scheduleId, String content) {
-        User user = findUserById(userId);
-        Schedule schedule = findScheduleById(scheduleId);
+        User user = getUser(userId);
+        Schedule schedule = getSchedule(scheduleId);
 
         Comment comment = new Comment(user, schedule, content);
         Comment savedComment = commentRepository.save(comment);
@@ -67,34 +67,32 @@ public class CommentService {
     }
 
     public List<CommentResponseDto> findComment(Long scheduleId) {
-        findScheduleById(scheduleId);
+        getSchedule(scheduleId); // 유효성 검사용
 
-        List<Comment> comments = commentRepository.findByScheduleId(scheduleId);
-
-        return comments.stream()
-                .map(s -> new CommentResponseDto(s.getId(), s.getUser().getUserName(),s.getContent()))
+        return commentRepository.findByScheduleId(scheduleId).stream()
+                .map(c -> new CommentResponseDto(c.getId(), c.getUser().getUserName(), c.getContent()))
                 .toList();
     }
 
     @Transactional
-    public void updateComment(Long userId, Long scheduleId, Long commentId, String content, String userRawPassword) {
-        User user = findUserById(userId);
-        verifyUserPassword(user, userRawPassword);
-        findScheduleById(scheduleId);
-        Comment comment = findCommentById(commentId);
-        validateCommentScheduleAndOwnership(comment, scheduleId, userId);
+    public void updateComment(Long userId, Long scheduleId, Long commentId, String content, String rawPassword) {
+        User user = getUser(userId);
+        checkPassword(user, rawPassword);
+
+        Comment comment = getComment(commentId);
+        validateOwnership(comment, scheduleId, userId);
 
         comment.updateComment(content);
     }
 
     @Transactional
-    public void deleteComment(Long userId, Long scheduleId, Long commentId, String userRawPassword) {
-        User user = findUserById(userId);
-        verifyUserPassword(user, userRawPassword);
-        findScheduleById(scheduleId);
-        Comment comment = findCommentById(commentId);
-        validateCommentScheduleAndOwnership(comment, scheduleId, userId);
+    public void deleteComment(Long userId, Long scheduleId, Long commentId, String rawPassword) {
+        User user = getUser(userId);
+        checkPassword(user, rawPassword);
 
-        commentRepository.delete(comment);
+        Comment comment = getComment(commentId);
+        validateOwnership(comment, scheduleId, userId);
     }
 }
+
+

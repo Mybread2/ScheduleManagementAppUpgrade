@@ -1,15 +1,13 @@
 package com.example.schedulemanagementappupgrade.controller;
 
 import com.example.schedulemanagementappupgrade.dto.comment.*;
-import com.example.schedulemanagementappupgrade.entity.User;
+import com.example.schedulemanagementappupgrade.security.CustomUserDetails;
 import com.example.schedulemanagementappupgrade.service.CommentService;
-import com.example.schedulemanagementappupgrade.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,29 +18,25 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<CommentCreationResponseDto> createComment(
             @PathVariable Long scheduleId,
             @Valid @RequestBody CommentCreationRequestDto requestDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
-        CommentCreationResponseDto createCommentResponseDto = commentService.createComment(
-                currentUser.getId(),
+        CommentCreationResponseDto responseDto = commentService.createComment(
+                userDetails.user().getId(),
                 scheduleId,
                 requestDto.getContent()
         );
-        return new ResponseEntity<>(createCommentResponseDto, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> GetMyComments(
-            @PathVariable Long scheduleId
-    ) {
-        List<CommentResponseDto> commentResponseDto = commentService.findComment(scheduleId);
-        return ResponseEntity.ok(commentResponseDto);
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long scheduleId) {
+        List<CommentResponseDto> comments = commentService.findComment(scheduleId);
+        return ResponseEntity.ok(comments);
     }
 
     @PatchMapping("/{commentId}")
@@ -50,16 +44,15 @@ public class CommentController {
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequestDto requestDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         commentService.updateComment(
-                currentUser.getId(), // 실제 사용자 ID 전달
+                userDetails.user().getId(),
                 scheduleId,
                 commentId,
                 requestDto.getContent(),
-                requestDto.getPassword());
-
+                requestDto.getPassword()
+        );
         return ResponseEntity.ok().build();
     }
 
@@ -68,15 +61,14 @@ public class CommentController {
             @PathVariable Long scheduleId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentDeletionRequestDto requestDto,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User currentUser = userService.findByEmailAddressOrThrow(userDetails.getUsername());
         commentService.deleteComment(
-                currentUser.getId(), // 실제 사용자 ID 전달
+                userDetails.user().getId(),
                 scheduleId,
                 commentId,
-                requestDto.getPassword());
-
+                requestDto.getPassword()
+        );
         return ResponseEntity.noContent().build();
     }
 
